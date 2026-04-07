@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preparing Download | Nexus Tunnel</title>
+    <style>
+        body { background:#111; color:#fff; text-align:center; font-family:sans-serif; padding: 20px; margin: 0; }
+        .container { max-width: 500px; margin: auto; margin-top:30px; background: #222; padding: 25px; border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: #00ff00; margin-bottom: 5px; }
+        .timer-box { font-size: 24px; color: #00ff00; margin: 20px 0; font-weight: bold; background: #1a1a1a; padding: 15px; border-radius: 10px; border: 1px solid #444; }
+        button { padding:18px; border:none; background:#00ff00; color:#000; border-radius:8px; cursor:pointer; font-weight: bold; width: 100%; font-size: 18px; transition: 0.3s; text-transform: uppercase; }
+        button:disabled { background: #444; color: #888; cursor: not-allowed; }
+        button:not(:disabled):hover { background: #00cc00; transform: scale(1.02); }
+        
+        /* 🔥 AD SLOTS */
+        .ad-banner { margin: 20px 0; background: #1a1a1a; min-height: 250px; border-radius: 10px; display: flex; justify-content: center; align-items: center; border: 1px dashed #555; overflow: hidden; }
+        .footer-text { margin-top: 30px; font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>NEXUS TUNNEL</h2>
+    <p style="color: #888; font-size: 14px;">Your config is almost ready...</p>
+
+    <div class="ad-banner">
+        <p style="color: #444;">
+          <script>
+  atOptions = {
+    'key' : '71bed8d426d141fb19ff81dad1e3deed',
+    'format' : 'iframe',
+    'height' : 250,
+    'width' : 300,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highperformanceformat.com/71bed8d426d141fb19ff81dad1e3deed/invoke.js"></script>
+
+        </p>
+    </div>
+
+    <div class="timer-box" id="timer">Please wait 20s...</div>
+    
+    <button id="downloadBtn" disabled>Download Config</button>
+    
+    <p class="footer-text">Thank you for using Nexus Tunnel Official Site</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+    const supabaseUrl = "https://pgmtgecradinyqfrmsvx.supabase.co";
+    const supabaseKey = "sb_publishable__UW4kkCOKGW3xd_ZW64jdQ_DElwrDo-";
+    
+    // FIX: lowercase 's' for Supabase v2
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Kuhaon ang file info gikan sa URL
+    const params = new URLSearchParams(window.location.search);
+    const fileUrl = params.get("file");
+    const fileName = params.get("name") || "Nexus_Config";
+
+    let countdown = 20;
+    const timerDisplay = document.getElementById("timer");
+    const btn = document.getElementById("downloadBtn");
+
+    // TIMER LOGIC
+    const timerInterval = setInterval(() => {
+        countdown--;
+        timerDisplay.textContent = `Please wait ${countdown}s...`;
+        if (countdown <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = "Ready to Download!";
+            btn.disabled = false;
+        }
+    }, 1000);
+
+    // CLICK LOGIC (COMMERCIAL + DOWNLOAD)
+    btn.addEventListener("click", async () => {
+        if (!fileUrl) return alert("Error: No link found!");
+
+        // --- 💸 MONE-EY MAKER (COMMERCIAL) ---
+        // I-PASTE IMONG DIRECT LINK GIKAN SA ADSTERRA SA SULOD SA ' '
+        const adLink = 'https://omg10.com/4/10840506';
+        
+        // Mo-abli ang commercial/ad sa bag-ong tab
+        // Dapat ingon ani ang hitsura sa Line 76:
+            
+            if(adLink !== '') {
+            window.open(adLink, '_blank');
+        }
+
+        // I-log ang download sa Supabase (Stats)
+        try {
+            await supabaseClient.from('downloads').insert([{ file_name: fileName }]);
+        } catch (e) {
+            console.log("Log error:", e);
+        }
+
+        // Sugod sa tinuod nga download human sa 1 second
+        setTimeout(() => {
+            window.location.href = fileUrl;
+        }, 1000);
+    });
+</script>
+
+</body>
+</html>
+
+
+

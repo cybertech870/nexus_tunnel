@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Nexus</title>
+    <style>
+        body { background:#0b0b0b; color:#fff; font-family:'Segoe UI', sans-serif; text-align:center; padding: 10px; margin: 0; }
+        .container { max-width:500px; margin:auto; padding:25px; margin-top:40px; background:#1a1a1a; border-radius:15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: #00ff00; letter-spacing: 1px; }
+        input { width:90%; padding:14px; margin:8px 0; border-radius:8px; border:1px solid #333; background: #252525; color: white; outline: none; transition: 0.3s; }
+        input:focus { border-color: #00ff00; }
+        button { padding:12px 20px; border:none; border-radius:8px; background:#00ff00; color:#000; cursor:pointer; font-weight: bold; width: 96%; margin-top: 10px; transition: 0.2s; }
+        button:hover { opacity: 0.8; transform: scale(0.98); }
+        .config-item { background:#252525; margin:10px 0; padding:15px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; border: 1px solid #333; }
+        #status { color:#ff4444; margin-top:10px; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="login-card">
+    <h2>Nexus Admin</h2>
+    <p style="color: #666; font-size: 13px;">Authorized Access Only</p>
+    
+    <input type="email" id="adminEmail" placeholder="Enter Admin Email">
+    <input type="password" id="adminPass" placeholder="Enter Admin Password">
+    
+    <button id="loginBtn">LOGIN TO DASHBOARD</button>
+    <p id="status"></p>
+</div>
+
+<div class="container" id="dashboard" style="display:none;">
+    <h2>Admin Dashboard</h2>
+    <button id="logoutBtn" style="background:#ff4444; color:white; width:auto; padding:5px 15px; margin-bottom:20px;">LOGOUT</button>
+    
+    <h3>Upload New Config (.ehi)</h3>
+    <input type="text" id="configName" placeholder="Config Name">
+    <input type="text" id="configDesc" placeholder="Description">
+    <input type="text" id="configLink" placeholder="Config URL">
+    <button id="uploadBtn" style="background: #0088ff; color: white;">UPLOAD CONFIG</button>
+
+    <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+    <h3 style="color: #fff;">Configs List</h3>
+    <div id="configsList"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+    const supabaseUrl = "https://pgmtgecradinyqfrmsvx.supabase.co";
+    const supabaseKey = "sb_publishable__UW4kkCOKGW3xd_ZW64jdQ_DElwrDo-";
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const loginBtn = document.getElementById('loginBtn');
+    const status = document.getElementById('status');
+
+    loginBtn.addEventListener('click', async () => {
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPass').value;
+        
+        status.textContent = "Checking...";
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            status.textContent = "Error: " + error.message;
+        } else {
+            status.textContent = "";
+            document.getElementById('login-card').style.display='none';
+            document.getElementById('dashboard').style.display='block';
+            loadConfigs();
+        }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        location.reload();
+    });
+
+    async function uploadConfig(){
+        const name = document.getElementById('configName').value;
+        const desc = document.getElementById('configDesc').value; 
+        const link = document.getElementById('configLink').value;
+        
+        if(!name || !link) return alert("Fill fields!");
+
+        const { error } = await supabaseClient.from('configs').insert([{ name, description: desc, file_url: link }]);
+        if(error) return alert(error.message);
+        
+        alert("Config Uploaded!");
+        loadConfigs();
+    }
+    document.getElementById('uploadBtn').addEventListener('click', uploadConfig);
+
+    async function loadConfigs(){
+        const { data, error } = await supabaseClient.from('configs').select("*").order('created_at', { ascending: false });
+        const list = document.getElementById('configsList');
+        list.innerHTML = '';
+        if(data) {
+            data.forEach(config => {
+                const div = document.createElement('div');
+                div.className = 'config-item';
+                div.innerHTML = `
+                    <div style="text-align:left;">
+                        <b>${config.name}</b><br>
+                        <small style="color:#00ff00;">${config.description}</small>
+                    </div>
+                    <button onclick="deleteConfig(${config.id})" style="width:auto; background:red; color:white; font-size:10px; margin:0;">DEL</button>`;
+                list.appendChild(div);
+            });
+        }
+    }
+
+    window.deleteConfig = async (id) => {
+        if(!confirm("Delete?")) return;
+        await supabaseClient.from('configs').delete().eq('id', id);
+        loadConfigs();
+    }
+});
+</script>
+</body>
+</html>
